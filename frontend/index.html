@@ -3,222 +3,216 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FocusMate • ADHD Flow & Habit Tracker</title>
+  <title>FocusMate • Minimalist ADHD Focus</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Lexend:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lexend:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <!-- Lucide Icons & Confetti -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Lightweight Confetti for celebration -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 </head>
 <body>
-  <!-- Ambient Gradient Meshes -->
-  <div class="mesh-gradient-1"></div>
-  <div class="mesh-gradient-2"></div>
-
-  <div class="app-wrapper">
+  <div class="app-layout">
     <!-- Top Navigation Header -->
-    <header class="top-nav-bar">
-      <div class="brand-group">
-        <div class="brand-badge">
-          <i data-lucide="sprout" class="brand-icon"></i>
-        </div>
-        <div class="brand-info">
-          <span class="brand-name">FocusMate</span>
-          <span class="brand-tagline">ADHD Atomic Flow</span>
-        </div>
-      </div>
-
-      <div class="header-center">
-        <!-- Streak Widget -->
-        <div class="streak-pill" id="streakWidget" title="Daily momentum active">
-          <i data-lucide="flame" class="streak-icon"></i>
-          <span><strong id="winsCount">0</strong> Done Today</span>
+    <header class="top-nav">
+      <div class="nav-left">
+        <div class="brand">
+          <svg class="brand-sprout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 20h10" />
+            <path d="M12 20v-8" />
+            <path d="M12 12c-2-3-6-4-8-2-1 3 1 7 4 8" />
+            <path d="M12 10c2-3 6-4 8-2 1 3-1 7-4 8" />
+          </svg>
+          <div class="brand-titles">
+            <span class="brand-name">FocusMate</span>
+            <span class="brand-sub">One task at a time</span>
+          </div>
         </div>
       </div>
 
-      <div class="nav-controls">
-        <!-- Braindump Button (with Keyboard Shortcut Badge) -->
-        <button class="btn btn-braindump-nav" id="openBraindumpBtn" title="Brain Dump (Ctrl+K or ⌘K)">
-          <i data-lucide="sparkles"></i>
+      <div class="nav-center">
+        <!-- Date Badge -->
+        <div class="nav-date-badge" id="navDateBadge">
+          <svg class="nav-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <span id="currentDateText">Today</span>
+        </div>
+      </div>
+
+      <div class="nav-right">
+        <!-- Daily Wins Pill -->
+        <div class="wins-pill" id="winsPill" title="Tasks conquered today">
+          <svg class="nav-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+          </svg>
+          <span><strong id="winsCount">0</strong> Wins</span>
+        </div>
+
+        <!-- Brain Dump Button -->
+        <button class="btn btn-nav-action" id="openBraindumpBtn" title="Brain Dump (Ctrl+K or ⌘K)">
+          <svg class="nav-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
           <span>Brain Dump</span>
-          <kbd class="kbd-badge">⌘K</kbd>
         </button>
 
-        <!-- Theme Toggle -->
-        <button class="btn-icon-btn" id="themeToggleBtn" title="Toggle Dark / Light Theme">
-          <i data-lucide="moon" class="theme-icon-moon"></i>
-          <i data-lucide="sun" class="theme-icon-sun"></i>
+        <!-- Black / White Theme Switcher -->
+        <button class="btn-icon" id="themeToggleBtn" title="Toggle Black / White Mode">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
         </button>
 
-        <!-- Settings -->
-        <button class="btn-icon-btn" id="openSettingsBtn" title="Settings">
-          <i data-lucide="sliders-horizontal"></i>
+        <!-- Settings Button -->
+        <button class="btn-icon" id="openSettingsBtn" title="Settings">
+          <svg class="nav-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
         </button>
       </div>
     </header>
 
-    <!-- Interactive Weekly Calendar Strip Bento -->
-    <section class="bento-card week-calendar-bento">
-      <div class="week-header-row">
-        <div class="week-date-title">
-          <i data-lucide="calendar" class="calendar-icon"></i>
-          <span id="currentMonthYear">September 2026</span>
-        </div>
-        <span class="week-subhint">Daily Habit & Focus Strip</span>
-      </div>
-      <div class="week-days-grid" id="weekStrip"></div>
-    </section>
-
-    <!-- Main Content Area -->
-    <main class="main-dashboard-grid">
-      <!-- HERO BENTO: Single-Task Focus Arena -->
-      <section class="bento-card hero-focus-card" id="focusArena">
-        <!-- Card Header Tags -->
-        <div class="card-meta-bar">
-          <div class="meta-pills-left">
-            <span class="pill pill-energy" id="taskEnergy">
-              <i data-lucide="zap"></i>
-              <span id="taskEnergyText">Morning Focus</span>
-            </span>
-            <span class="pill pill-time" id="taskTime">
-              <i data-lucide="clock"></i>
-              <span id="taskTimeText">15 mins</span>
-            </span>
+    <!-- Main Focus Area -->
+    <main class="main-content">
+      <!-- State 1: Active Single Focus Card -->
+      <section class="focus-arena" id="focusArena">
+        <div class="focus-card" id="taskCard">
+          <!-- Card Meta Row -->
+          <div class="card-meta-row">
+            <span class="tag-badge tag-energy" id="taskEnergyText">Morning Focus</span>
+            <span class="tag-badge tag-time" id="taskTimeText">15 mins</span>
+            <span class="tag-badge tag-counter" id="taskPosition">1 of 1</span>
           </div>
-          <span class="pill pill-counter" id="taskPosition">1 of 1</span>
-        </div>
 
-        <!-- Task Title & Context -->
-        <div class="task-headline-group">
-          <h1 class="task-title-text" id="taskTitle">Loading your next focus...</h1>
-          <p class="task-description-text" id="taskDesc"></p>
-        </div>
-
-        <!-- Micro-Steps Checklist (De-chunker) -->
-        <div class="micro-steps-card" id="subtasksContainer" style="display: none;">
-          <div class="micro-steps-header">
-            <i data-lucide="list-checks" class="micro-icon"></i>
-            <span>2-Minute Starter Micro-Steps:</span>
+          <!-- Main Task Title -->
+          <div class="task-title-area">
+            <h1 class="task-title" id="taskTitle">Loading focus...</h1>
+            <p class="task-desc" id="taskDesc"></p>
           </div>
-          <ul class="micro-steps-list" id="subtasksList"></ul>
+
+          <!-- 2-Minute Micro-Steps (De-chunker) -->
+          <div class="micro-steps-box" id="subtasksContainer" style="display: none;">
+            <div class="micro-steps-header">
+              <svg class="nav-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 11 12 14 22 4"></polyline>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+              </svg>
+              <span>2-Minute Starter Steps:</span>
+            </div>
+            <ul class="micro-steps-list" id="subtasksList"></ul>
+          </div>
+
+          <!-- Main Primary Actions -->
+          <div class="card-actions-grid">
+            <button class="btn btn-primary btn-large" id="markDoneBtn">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Done! Next</span>
+            </button>
+            <button class="btn btn-secondary btn-large" id="startSprintBtn">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span>Begin Sprint (<span id="sprintDurationLabel">15m</span>)</span>
+            </button>
+          </div>
+
+          <!-- Co-Pilot Helpers -->
+          <div class="card-footer-links">
+            <button class="link-btn" id="stuckBtn">
+              <svg class="nav-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+              <span>I'm Stuck (Break it down)</span>
+            </button>
+            <button class="link-btn" id="skipTaskBtn">
+              <svg class="nav-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                <line x1="19" y1="5" x2="19" y2="19"></line>
+              </svg>
+              <span>Defer to end</span>
+            </button>
+          </div>
         </div>
 
-        <!-- Primary Action Buttons -->
-        <div class="hero-actions-grid">
-          <button class="btn btn-action-done btn-primary-gradient" id="markDoneBtn">
-            <i data-lucide="check-circle-2"></i>
-            <span>Done! Next Task</span>
-          </button>
-          <button class="btn btn-action-sprint btn-secondary-glass" id="startSprintBtn">
-            <i data-lucide="timer"></i>
-            <span>Start Sprint (<span id="sprintDurationLabel">15m</span>)</span>
-          </button>
-        </div>
-
-        <!-- Secondary Co-Pilot Helpers -->
-        <div class="card-copilot-row">
-          <button class="btn-copilot" id="stuckBtn">
-            <i data-lucide="wand-2"></i>
-            <span>I'm Stuck (Break it down)</span>
-          </button>
-          <button class="btn-copilot" id="skipTaskBtn">
-            <i data-lucide="corner-down-right"></i>
-            <span>Defer to end of queue</span>
-          </button>
-        </div>
-      </section>
-
-      <!-- State 2: Empty / Calm State -->
-      <section class="bento-card empty-focus-card" id="emptyState" style="display: none;">
-        <div class="empty-icon-wrap">
-          <i data-lucide="check-check" class="empty-icon"></i>
-        </div>
-        <h2>Your slate is calm & clear.</h2>
-        <p>No active tasks in your queue right now. Ready to capture your thoughts?</p>
-        <button class="btn btn-primary-gradient btn-large" id="emptyBraindumpBtn">
-          <i data-lucide="sparkles"></i>
-          <span>Start a Brain Dump</span>
+        <!-- Peek Queue Trigger -->
+        <button class="btn-peek-drawer" id="peekToggleBtn">
+          <svg class="nav-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+          <span>Peek at upcoming tasks & wins (<span id="peekCount">0</span>)</span>
         </button>
       </section>
 
-      <!-- BENTO STATS & INSIGHTS ROW -->
-      <section class="bento-stats-row">
-        <!-- Stat Bento 1: Circular Progress Ring -->
-        <div class="bento-card stat-bento-card">
-          <div class="stat-card-header">
-            <span class="stat-title">Daily Progress</span>
-            <i data-lucide="pie-chart" class="stat-icon"></i>
+      <!-- State 2: Empty / Calm State -->
+      <section class="empty-state" id="emptyState" style="display: none;">
+        <div class="empty-card">
+          <div class="empty-icon-wrap">
+            <svg class="empty-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+              <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+              <line x1="9" y1="9" x2="9.01" y2="9"/>
+              <line x1="15" y1="9" x2="15.01" y2="9"/>
+            </svg>
           </div>
-          <div class="stat-progress-body">
-            <div class="circular-progress-wrap">
-              <svg class="circular-progress-svg" viewBox="0 0 100 100">
-                <circle class="circle-bg" cx="50" cy="50" r="42" />
-                <circle class="circle-fill" id="circularProgressFill" cx="50" cy="50" r="42" />
-              </svg>
-              <div class="circle-percent-text" id="circularPercentText">0%</div>
-            </div>
-            <div class="stat-progress-info">
-              <div class="stat-highlight" id="completedCountText">0 Tasks Done</div>
-              <div class="stat-subtext" id="pendingRemainingText">0 remaining today</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Stat Bento 2: Focus Time Box -->
-        <div class="bento-card stat-bento-card">
-          <div class="stat-card-header">
-            <span class="stat-title">Focus Pacing</span>
-            <i data-lucide="hourglass" class="stat-icon"></i>
-          </div>
-          <div class="stat-body-simple">
-            <div class="stat-big-number" id="plannedMinutesText">0m</div>
-            <div class="stat-subtext">Estimated total sprint time</div>
-            <div class="energy-status-chip">
-              <i data-lucide="shield-check"></i>
-              <span>Anti-Burnout Paced</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Stat Bento 3: Queue Peek Drawer Trigger -->
-        <div class="bento-card stat-bento-card stat-bento-interactive" id="peekToggleBtn">
-          <div class="stat-card-header">
-            <span class="stat-title">Up Next</span>
-            <i data-lucide="layers" class="stat-icon"></i>
-          </div>
-          <div class="stat-body-simple">
-            <div class="stat-next-preview" id="nextTaskPreviewTitle">No upcoming tasks</div>
-            <div class="stat-peek-action">
-              <span>View full backlog (<span id="peekCount">0</span>)</span>
-              <i data-lucide="arrow-right"></i>
-            </div>
-          </div>
+          <h2>Your slate is calm & clear.</h2>
+          <p>No tasks currently pending. Ready to dump some thoughts?</p>
+          <button class="btn btn-primary btn-large" id="emptyBraindumpBtn">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            <span>Start a Brain Dump</span>
+          </button>
         </div>
       </section>
     </main>
 
-    <!-- Peek Drawer (Upcoming & Daily Wins with Reorder & Remove) -->
+    <!-- Side Peek Drawer (Upcoming & Wins) -->
     <aside class="peek-drawer" id="peekDrawer">
       <div class="drawer-header">
-        <div class="drawer-title-group">
-          <h3>Task Queue & Daily Wins</h3>
-          <span class="drawer-hint">Drag, reorder, reshuffle, or delete</span>
+        <div class="drawer-title-wrap">
+          <h3>Task Backlog & Wins</h3>
+          <span class="drawer-subtitle">Reorder, reshuffle, or delete tasks</span>
         </div>
-        <button class="btn-icon-btn btn-close-drawer" id="closeDrawerBtn">
-          <i data-lucide="x"></i>
-        </button>
+        <button class="btn-close" id="closeDrawerBtn" title="Close drawer">✕</button>
       </div>
 
       <div class="drawer-tabs">
         <button class="tab-btn active" id="tabPending">Upcoming (<span id="pendingTabCount">0</span>)</button>
-        <button class="tab-btn" id="tabCompleted">Conquered Wins (<span id="completedTabCount">0</span>)</button>
+        <button class="tab-btn" id="tabCompleted">Daily Wins (<span id="completedTabCount">0</span>)</button>
       </div>
 
       <div class="queue-action-bar" id="queueActionBar">
-        <button class="btn btn-sm btn-secondary-glass" id="shuffleTasksBtn" title="Reshuffle sequence">
-          <i data-lucide="shuffle"></i>
+        <button class="btn btn-sm btn-secondary" id="shuffleTasksBtn" title="Reshuffle task sequence">
+          <svg class="nav-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 3 21 3 21 8"></polyline>
+            <line x1="4" y1="20" x2="21" y2="3"></line>
+            <polyline points="21 16 21 21 16 21"></polyline>
+            <line x1="15" y1="15" x2="21" y2="21"></line>
+            <line x1="4" y1="4" x2="9" y2="9"></line>
+          </svg>
           <span>Reshuffle Sequence</span>
         </button>
       </div>
@@ -233,98 +227,48 @@
       </div>
     </aside>
 
-    <!-- Sprint Timer Modal -->
-    <div class="modal-backdrop" id="sprintModal" style="display: none;">
-      <div class="modal-card sprint-modal-card">
-        <div class="sprint-header-badge">
-          <i data-lucide="flame"></i>
-          <span>DEEP FOCUS SPRINT</span>
-        </div>
-        <h2 class="sprint-task-heading" id="sprintTaskTitle">Draft intro email</h2>
-
-        <div class="timer-display-wrap">
-          <div class="timer-ring-container">
-            <svg class="timer-svg" viewBox="0 0 200 200">
-              <circle class="timer-ring-bg" cx="100" cy="100" r="88" />
-              <circle class="timer-ring-progress" id="timerProgressRing" cx="100" cy="100" r="88" />
-            </svg>
-            <div class="timer-time-label" id="timerTimeText">15:00</div>
-          </div>
-        </div>
-
-        <p class="sprint-tip-text" id="sprintTip">Take a slow breath. Just do the very first 2-minute starter step.</p>
-
-        <div class="sprint-btn-row">
-          <button class="btn btn-secondary-glass" id="pauseSprintBtn">
-            <i data-lucide="pause"></i>
-            <span>Pause</span>
-          </button>
-          <button class="btn btn-secondary-glass" id="extendSprintBtn">
-            <i data-lucide="plus"></i>
-            <span>+5 Mins</span>
-          </button>
-          <button class="btn btn-primary-gradient" id="finishSprintDoneBtn">
-            <i data-lucide="check"></i>
-            <span>Finished!</span>
-          </button>
-        </div>
-
-        <button class="btn-text-link" id="exitSprintBtn">Exit sprint timer</button>
-      </div>
-    </div>
-
-    <!-- Brain Dump Modal (Expansive & Tactile with Prompt Chips) -->
+    <!-- Brain Dump Modal -->
     <div class="modal-backdrop" id="braindumpModal" style="display: none;">
-      <div class="modal-card braindump-modal-card">
-        <div class="modal-header-row">
-          <div class="modal-title-wrap">
-            <div class="modal-pill-title">
-              <i data-lucide="sparkles"></i>
-              <span>Brain Dump Box</span>
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="modal-heading-row">
+              <svg class="modal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              <h3>Brain Dump Box</h3>
             </div>
-            <p class="modal-subtitle">Paste or type raw thoughts. AI turns them into atomic, gentle steps.</p>
+            <p>Type or paste whatever is bouncing around in your head.</p>
           </div>
-          <button class="btn-icon-btn btn-close-modal" id="closeBraindumpBtn">
-            <i data-lucide="x"></i>
-          </button>
+          <button class="btn-close" id="closeBraindumpBtn">✕</button>
         </div>
 
         <!-- Input State -->
         <div id="braindumpInputState">
-          <!-- Suggestion Starter Chips -->
-          <div class="prompt-chips-row">
-            <span class="chips-label">Quick Starters:</span>
-            <button class="prompt-chip" onclick="addPromptChip('Reply to urgent emails, clean inbox')">📬 Email batch</button>
-            <button class="prompt-chip" onclick="addPromptChip('Outline slide presentation, review draft')">📑 Slide outline</button>
-            <button class="prompt-chip" onclick="addPromptChip('Study exam chapter, summarize 3 concepts')">📚 Study topic</button>
-            <button class="prompt-chip" onclick="addPromptChip('Tidy desk, take out trash, drink water')">🧹 Quick tidy</button>
-          </div>
-
-          <div class="textarea-container">
+          <div class="textarea-box">
             <textarea 
               id="braindumpInput" 
-              placeholder="e.g. Research youtube automation, watch saved videos, finish TS Academy module and work on app..." 
+              placeholder="e.g. Reply to Sarah's email, tidy up the kitchen counter, finish the slide outline, pay electricity bill..." 
               rows="6"></textarea>
           </div>
 
-          <!-- Modal Footer with Generous Breathing Space -->
-          <div class="braindump-action-bar">
-            <div class="ai-status-indicator" id="aiStatusIndicator">
-              <span class="live-dot"></span>
-              <span id="aiStatusText">Gemini AI Active</span>
+          <div class="modal-footer">
+            <div class="ai-status-pill" id="aiStatusIndicator">
+              <span class="live-indicator-dot"></span>
+              <span id="aiStatusText">Gemini AI Ready</span>
             </div>
-            <button class="btn btn-primary-gradient btn-braindump-submit" id="submitBraindumpBtn">
-              <i data-lucide="sparkles"></i>
+            <button class="btn btn-primary btn-large" id="submitBraindumpBtn">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+              </svg>
               <span>Turn into Focus Steps</span>
             </button>
           </div>
         </div>
 
-        <!-- Loading / Thinking Animation State -->
+        <!-- Loading Animation State -->
         <div class="ai-loading-state" id="aiLoadingState" style="display: none;">
-          <div class="pulsing-brain-wrap">
-            <i data-lucide="sparkles" class="pulsing-ai-icon"></i>
-          </div>
+          <div class="loading-spinner"></div>
           <h4 id="loadingStepTitle">Reading your brain dump...</h4>
           <p id="loadingStepSub">De-chunking thoughts into calm atomic starter actions...</p>
           <div class="progress-bar-track">
@@ -334,74 +278,90 @@
       </div>
     </div>
 
-    <!-- Review & Acceptance Modal -->
+    <!-- Review & Confirmation Modal -->
     <div class="modal-backdrop" id="reviewModal" style="display: none;">
-      <div class="modal-card review-modal-card">
-        <div class="modal-header-row">
-          <div class="modal-title-wrap">
-            <div class="modal-pill-title">
-              <i data-lucide="check-square"></i>
-              <span>Review Proposed Steps</span>
-            </div>
-            <p class="modal-subtitle">Pick the items you want in today's focus flow.</p>
+      <div class="modal-card review-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <h3>✨ Review Proposed Tasks</h3>
+            <p>Pick which tasks to add to today's focus flow.</p>
           </div>
-          <button class="btn-icon-btn btn-close-modal" id="closeReviewBtn">
-            <i data-lucide="x"></i>
-          </button>
+          <button class="btn-close" id="closeReviewBtn">✕</button>
         </div>
 
-        <!-- Optional Clarification MCQ Section -->
+        <!-- Clarification MCQ if any -->
         <div class="clarification-box" id="clarificationBox" style="display: none;">
           <div class="clarification-header">
-            <i data-lucide="help-circle"></i>
-            <span id="clarificationQuestionText">Quick choice to help prioritize:</span>
+            <span>Quick clarification:</span>
           </div>
           <div class="clarification-options" id="clarificationOptions"></div>
         </div>
 
-        <!-- Proposed Tasks Checklist -->
+        <!-- Tasks Checkable List -->
         <div class="preview-tasks-list" id="previewTasksList"></div>
 
-        <div class="review-modal-footer">
-          <button class="btn btn-secondary-glass" id="cancelReviewBtn">Back to edit</button>
-          <button class="btn btn-primary-gradient" id="confirmTasksBtn">
-            <i data-lucide="check"></i>
+        <div class="modal-footer review-footer">
+          <button class="btn btn-secondary" id="cancelReviewBtn">Back to edit</button>
+          <button class="btn btn-primary" id="confirmTasksBtn">
             <span>Accept & Start Focus Flow (<span id="selectedCountLabel">0</span>)</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Settings Modal -->
-    <div class="modal-backdrop" id="settingsModal" style="display: none;">
-      <div class="modal-card settings-modal-card">
-        <div class="modal-header-row">
-          <div class="modal-title-wrap">
-            <div class="modal-pill-title">
-              <i data-lucide="settings"></i>
-              <span>Settings & AI Engine</span>
-            </div>
-            <p class="modal-subtitle">Configure Gemini API key and performance.</p>
+    <!-- Soft Sprint Timer Modal -->
+    <div class="modal-backdrop" id="sprintModal" style="display: none;">
+      <div class="modal-card sprint-card">
+        <span class="tag-badge tag-sprint">FOCUS SPRINT</span>
+        <h2 id="sprintTaskTitle">Draft intro email</h2>
+
+        <div class="timer-display">
+          <div class="timer-ring-container">
+            <svg class="timer-svg" viewBox="0 0 200 200">
+              <circle class="timer-ring-bg" cx="100" cy="100" r="88" />
+              <circle class="timer-ring-progress" id="timerProgressRing" cx="100" cy="100" r="88" />
+            </svg>
+            <div class="timer-time" id="timerTimeText">15:00</div>
           </div>
-          <button class="btn-icon-btn btn-close-modal" id="closeSettingsBtn">
-            <i data-lucide="x"></i>
-          </button>
         </div>
 
-        <div class="settings-form-body">
-          <div class="form-item">
+        <p class="sprint-tip" id="sprintTip">Take a slow breath. Just do the very first 2-minute starter step.</p>
+
+        <div class="sprint-controls">
+          <button class="btn btn-secondary" id="pauseSprintBtn">⏸️ Pause</button>
+          <button class="btn btn-secondary" id="extendSprintBtn">➕ +5 Mins</button>
+          <button class="btn btn-primary" id="finishSprintDoneBtn">✅ Done!</button>
+        </div>
+
+        <button class="link-btn close-sprint-link" id="exitSprintBtn">Exit sprint</button>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-backdrop" id="settingsModal" style="display: none;">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <h3>⚙️ Settings & AI Preferences</h3>
+            <p>Configure Gemini API key and model parameters.</p>
+          </div>
+          <button class="btn-close" id="closeSettingsBtn">✕</button>
+        </div>
+
+        <div class="settings-form">
+          <div class="form-group">
             <label for="geminiApiKey">Google Gemini API Key (Optional)</label>
-            <div class="input-action-row">
+            <div class="input-row">
               <input type="password" id="geminiApiKey" placeholder="AIzaSy...">
-              <button class="btn btn-secondary-glass" id="testApiKeyBtn">Test</button>
+              <button class="btn btn-secondary" id="testApiKeyBtn">Test</button>
             </div>
-            <small class="form-hint">
+            <small class="form-help">
               Get a free API key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>. (Leave blank for smart offline mode).
             </small>
             <div class="test-feedback" id="testFeedback"></div>
           </div>
 
-          <div class="form-item">
+          <div class="form-group">
             <label for="geminiModelSelect">Gemini Model</label>
             <select id="geminiModelSelect">
               <option value="gemini-3.6-flash">gemini-3.6-flash (Recommended • Current Free Tier)</option>
@@ -410,53 +370,48 @@
             </select>
           </div>
 
-          <div class="danger-zone-card">
-            <button class="btn btn-danger-outline" id="clearAllTasksBtn">
-              <i data-lucide="trash-2"></i>
-              <span>Clear All Tasks</span>
-            </button>
+          <div class="danger-zone">
+            <button class="btn btn-danger-outline" id="clearAllTasksBtn">🗑️ Clear All Tasks</button>
           </div>
         </div>
 
-        <div class="settings-footer">
-          <button class="btn btn-primary-gradient" id="saveSettingsBtn">Save Settings</button>
+        <div class="modal-footer">
+          <button class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
         </div>
       </div>
     </div>
 
     <!-- Onboarding Modal -->
     <div class="modal-backdrop" id="onboardingModal" style="display: none;">
-      <div class="modal-card onboarding-modal-card">
-        <div class="onboarding-icon-wrap">
-          <i data-lucide="sparkles" class="onboarding-sparkle"></i>
-        </div>
+      <div class="modal-card onboarding-card">
+        <div class="onboarding-icon">🌱</div>
         <h2>Welcome to FocusMate</h2>
-        <p class="onboarding-intro">
-          Designed specifically for ADHD minds to crush decision paralysis and time blindness.
+        <p class="onboarding-lead">
+          Built for ADHD minds to crush decision paralysis and time blindness.
         </p>
 
-        <div class="onboarding-features-list">
-          <div class="feature-card">
-            <i data-lucide="target" class="feat-icon"></i>
+        <div class="onboarding-features">
+          <div class="feature-item">
+            <span class="feat-icon">🎯</span>
             <div><strong>One Task at a Time</strong> — Tunnel vision so you never freeze looking at a giant list.</div>
           </div>
-          <div class="feature-card">
-            <i data-lucide="timer" class="feat-icon"></i>
+          <div class="feature-item">
+            <span class="feat-icon">⏱️</span>
             <div><strong>Gentle Focus Sprints</strong> — Anti-time blindness timers with zero panic alarms.</div>
           </div>
-          <div class="feature-card">
-            <i data-lucide="wand-2" class="feat-icon"></i>
+          <div class="feature-item">
+            <span class="feat-icon">🪄</span>
             <div><strong>AI Task De-chunker</strong> — Breaks big tasks into 2-minute starter steps.</div>
           </div>
         </div>
 
-        <div class="onboarding-api-section">
+        <div class="onboarding-api-box">
           <label for="onboardingApiKey"><strong>Have a Google Gemini API Key? (Optional)</strong></label>
           <input type="password" id="onboardingApiKey" placeholder="Paste key here (or leave blank to skip)">
           <small>You can always add or change this anytime in Settings.</small>
         </div>
 
-        <button class="btn btn-primary-gradient btn-large" id="finishOnboardingBtn">Let's Get Started 🚀</button>
+        <button class="btn btn-primary btn-large" id="finishOnboardingBtn">Let's Get Started 🚀</button>
       </div>
     </div>
   </div>
