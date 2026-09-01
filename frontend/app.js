@@ -1,3 +1,7 @@
+// ==========================================================================
+// FocusMate • Emil Kowalski Design Engineered Interactive Controller
+// ==========================================================================
+
 // --- Audio Synthesis for Dopamine Feedback ---
 class DopamineChime {
   constructor() {
@@ -18,7 +22,7 @@ class DopamineChime {
       if (this.ctx.state === 'suspended') this.ctx.resume();
 
       const now = this.ctx.currentTime;
-      // Uplifting 3-tone harmonic progression (C5 -> E5 -> G5)
+      // Uplifting 3-tone harmonic major triad progression (C5 -> E5 -> G5)
       const freqs = [523.25, 659.25, 783.99];
       freqs.forEach((f, i) => {
         const osc = this.ctx.createOscillator();
@@ -28,13 +32,13 @@ class DopamineChime {
 
         gain.gain.setValueAtTime(0.001, now + i * 0.08);
         gain.gain.exponentialRampToValueAtTime(0.12, now + i * 0.08 + 0.04);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.08 + 0.6);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.08 + 0.55);
 
         osc.connect(gain);
         gain.connect(this.ctx.destination);
 
         osc.start(now + i * 0.08);
-        osc.stop(now + i * 0.08 + 0.65);
+        osc.stop(now + i * 0.08 + 0.6);
       });
     } catch (e) {
       console.log('Audio feedback not available', e);
@@ -68,125 +72,50 @@ let state = {
 // Apply saved theme
 document.documentElement.setAttribute('data-theme', state.theme);
 
-// --- DOM Elements ---
-const el = {
-  currentMonthYear: document.getElementById('currentMonthYear'),
-  weekStrip: document.getElementById('weekStrip'),
-  
-  // Bento Stats
-  circularProgressFill: document.getElementById('circularProgressFill'),
-  circularPercentText: document.getElementById('circularPercentText'),
-  completedCountText: document.getElementById('completedCountText'),
-  pendingRemainingText: document.getElementById('pendingRemainingText'),
-  plannedMinutesText: document.getElementById('plannedMinutesText'),
-  nextTaskPreviewTitle: document.getElementById('nextTaskPreviewTitle'),
+// --- DOM Elements Reference ---
+const $ = (id) => document.getElementById(id);
 
-  themeToggleBtn: document.getElementById('themeToggleBtn'),
-  focusArena: document.getElementById('focusArena'),
-  emptyState: document.getElementById('emptyState'),
-  taskTitle: document.getElementById('taskTitle'),
-  taskDesc: document.getElementById('taskDesc'),
-  taskEnergyText: document.getElementById('taskEnergyText'),
-  taskTimeText: document.getElementById('taskTimeText'),
-  taskPosition: document.getElementById('taskPosition'),
-  subtasksContainer: document.getElementById('subtasksContainer'),
-  subtasksList: document.getElementById('subtasksList'),
-  markDoneBtn: document.getElementById('markDoneBtn'),
-  startSprintBtn: document.getElementById('startSprintBtn'),
-  sprintDurationLabel: document.getElementById('sprintDurationLabel'),
-  stuckBtn: document.getElementById('stuckBtn'),
-  skipTaskBtn: document.getElementById('skipTaskBtn'),
-  winsCount: document.getElementById('winsCount'),
-  peekCount: document.getElementById('peekCount'),
-  peekToggleBtn: document.getElementById('peekToggleBtn'),
-  
-  // Drawer
-  peekDrawer: document.getElementById('peekDrawer'),
-  closeDrawerBtn: document.getElementById('closeDrawerBtn'),
-  tabPending: document.getElementById('tabPending'),
-  tabCompleted: document.getElementById('tabCompleted'),
-  panePending: document.getElementById('panePending'),
-  paneCompleted: document.getElementById('paneCompleted'),
-  pendingTabCount: document.getElementById('pendingTabCount'),
-  completedTabCount: document.getElementById('completedTabCount'),
-  queueList: document.getElementById('queueList'),
-  winsList: document.getElementById('winsList'),
-  shuffleTasksBtn: document.getElementById('shuffleTasksBtn'),
+// Modal Helpers (Emil Kowalski Transitions: scale 0.95 -> 1 with ease-out)
+function openModal(modalEl) {
+  if (!modalEl) return;
+  modalEl.classList.add('open');
+  modalEl.style.display = 'flex';
+  refreshIcons();
+}
 
-  // Braindump Modal & Loading States
-  braindumpModal: document.getElementById('braindumpModal'),
-  braindumpInputState: document.getElementById('braindumpInputState'),
-  aiLoadingState: document.getElementById('aiLoadingState'),
-  loadingStepTitle: document.getElementById('loadingStepTitle'),
-  loadingStepSub: document.getElementById('loadingStepSub'),
-  progressBarFill: document.getElementById('progressBarFill'),
-  openBraindumpBtn: document.getElementById('openBraindumpBtn'),
-  emptyBraindumpBtn: document.getElementById('emptyBraindumpBtn'),
-  closeBraindumpBtn: document.getElementById('closeBraindumpBtn'),
-  braindumpInput: document.getElementById('braindumpInput'),
-  submitBraindumpBtn: document.getElementById('submitBraindumpBtn'),
-  aiStatusText: document.getElementById('aiStatusText'),
+function closeModal(modalEl) {
+  if (!modalEl) return;
+  modalEl.classList.remove('open');
+  setTimeout(() => {
+    if (!modalEl.classList.contains('open')) {
+      modalEl.style.display = 'none';
+    }
+  }, 180);
+}
 
-  // Review & Confirmation Modal
-  reviewModal: document.getElementById('reviewModal'),
-  closeReviewBtn: document.getElementById('closeReviewBtn'),
-  cancelReviewBtn: document.getElementById('cancelReviewBtn'),
-  confirmTasksBtn: document.getElementById('confirmTasksBtn'),
-  previewTasksList: document.getElementById('previewTasksList'),
-  selectedCountLabel: document.getElementById('selectedCountLabel'),
-  clarificationBox: document.getElementById('clarificationBox'),
-  clarificationQuestionText: document.getElementById('clarificationQuestionText'),
-  clarificationOptions: document.getElementById('clarificationOptions'),
-
-  // Settings
-  settingsModal: document.getElementById('settingsModal'),
-  openSettingsBtn: document.getElementById('openSettingsBtn'),
-  closeSettingsBtn: document.getElementById('closeSettingsBtn'),
-  geminiApiKey: document.getElementById('geminiApiKey'),
-  geminiModelSelect: document.getElementById('geminiModelSelect'),
-  testApiKeyBtn: document.getElementById('testApiKeyBtn'),
-  testFeedback: document.getElementById('testFeedback'),
-  saveSettingsBtn: document.getElementById('saveSettingsBtn'),
-  clearAllTasksBtn: document.getElementById('clearAllTasksBtn'),
-
-  // Sprint Modal
-  sprintModal: document.getElementById('sprintModal'),
-  sprintTaskTitle: document.getElementById('sprintTaskTitle'),
-  timerTimeText: document.getElementById('timerTimeText'),
-  timerProgressRing: document.getElementById('timerProgressRing'),
-  pauseSprintBtn: document.getElementById('pauseSprintBtn'),
-  extendSprintBtn: document.getElementById('extendSprintBtn'),
-  finishSprintDoneBtn: document.getElementById('finishSprintDoneBtn'),
-  exitSprintBtn: document.getElementById('exitSprintBtn'),
-  sprintTip: document.getElementById('sprintTip'),
-
-  // Onboarding Modal
-  onboardingModal: document.getElementById('onboardingModal'),
-  onboardingApiKey: document.getElementById('onboardingApiKey'),
-  finishOnboardingBtn: document.getElementById('finishOnboardingBtn'),
-};
-
-// --- Refresh Icons ---
+// Refresh Lucide Icons
 function refreshIcons() {
   if (window.lucide && typeof window.lucide.createIcons === 'function') {
     window.lucide.createIcons();
   }
 }
 
-// --- Prompt Starter Chip Appender ---
+// Prompt Starter Chips
 window.addPromptChip = function(text) {
-  if (!el.braindumpInput) return;
-  const current = el.braindumpInput.value.trim();
-  el.braindumpInput.value = current ? `${current}, ${text}` : text;
-  el.braindumpInput.focus();
+  const input = $('braindumpInput');
+  if (!input) return;
+  const current = input.value.trim();
+  input.value = current ? `${current}, ${text}` : text;
+  input.focus();
 };
 
 // --- Weekly Calendar Strip (Bento Style) ---
 function renderWeekStrip() {
   const now = new Date();
   const options = { month: 'long', year: 'numeric' };
-  if (el.currentMonthYear) {
-    el.currentMonthYear.textContent = now.toLocaleDateString(undefined, options);
+  const monthTitle = $('currentMonthYear');
+  if (monthTitle) {
+    monthTitle.textContent = now.toLocaleDateString(undefined, options);
   }
 
   const currentDayIndex = now.getDay();
@@ -213,8 +142,9 @@ function renderWeekStrip() {
     `);
   }
 
-  if (el.weekStrip) {
-    el.weekStrip.innerHTML = daysHtml.join('');
+  const strip = $('weekStrip');
+  if (strip) {
+    strip.innerHTML = daysHtml.join('');
   }
 }
 
@@ -232,14 +162,21 @@ async function fetchSettings() {
   try {
     const res = await fetch('/api/settings');
     state.settings = await res.json();
-    el.geminiModelSelect.value = state.settings.gemini_model || 'gemini-3.6-flash';
-    if (state.settings.masked_api_key) {
-      el.geminiApiKey.placeholder = state.settings.masked_api_key;
+    const modelSelect = $('geminiModelSelect');
+    if (modelSelect) {
+      modelSelect.value = state.settings.gemini_model || 'gemini-3.6-flash';
     }
-    el.aiStatusText.textContent = state.settings.has_api_key ? 'Gemini AI Active' : 'Smart Offline Mode';
-    
+    const apiKeyInput = $('geminiApiKey');
+    if (apiKeyInput && state.settings.masked_api_key) {
+      apiKeyInput.placeholder = state.settings.masked_api_key;
+    }
+    const aiStatus = $('aiStatusText');
+    if (aiStatus) {
+      aiStatus.textContent = state.settings.has_api_key ? 'Gemini AI Active' : 'Smart Offline Mode';
+    }
+
     if (!state.settings.onboarded) {
-      el.onboardingModal.style.display = 'flex';
+      openModal($('onboardingModal'));
     }
   } catch (e) {
     console.error('Failed to load settings', e);
@@ -265,69 +202,83 @@ function updateUI() {
   const pending = state.pendingTasks.length;
   const total = completed + pending;
 
-  el.winsCount.textContent = completed;
-  el.peekCount.textContent = pending;
-  el.pendingTabCount.textContent = pending;
-  el.completedTabCount.textContent = completed;
+  // Header & drawer badges
+  if ($('winsCount')) $('winsCount').textContent = completed;
+  if ($('peekCount')) $('peekCount').textContent = pending;
+  if ($('pendingTabCount')) $('pendingTabCount').textContent = pending;
+  if ($('completedTabCount')) $('completedTabCount').textContent = completed;
 
   // 1. Bento Circular Progress Ring
   const percent = total > 0 ? Math.round((completed / total) * 100) : (completed > 0 ? 100 : 0);
-  el.circularPercentText.textContent = `${percent}%`;
-  el.completedCountText.textContent = `${completed} Done`;
-  el.pendingRemainingText.textContent = `${pending} remaining today`;
+  if ($('circularPercentText')) $('circularPercentText').textContent = `${percent}%`;
+  if ($('completedCountText')) $('completedCountText').textContent = `${completed} Done`;
+  if ($('pendingRemainingText')) $('pendingRemainingText').textContent = `${pending} remaining today`;
 
   const circumference = 2 * Math.PI * 42; // r=42 -> ~263.89
   const ringOffset = circumference * (1 - percent / 100);
-  el.circularProgressFill.style.strokeDashoffset = ringOffset;
+  if ($('circularProgressFill')) {
+    $('circularProgressFill').style.strokeDashoffset = ringOffset;
+  }
 
   // 2. Bento Planned Focus Time
   const totalPlannedMinutes = state.pendingTasks.reduce((acc, t) => acc + (t.time_estimate_minutes || 15), 0);
-  el.plannedMinutesText.textContent = `${totalPlannedMinutes}m`;
+  if ($('plannedMinutesText')) {
+    $('plannedMinutesText').textContent = `${totalPlannedMinutes}m`;
+  }
 
   // 3. Bento Next Task Preview
-  if (state.pendingTasks.length > 1) {
-    el.nextTaskPreviewTitle.textContent = state.pendingTasks[1].title;
-  } else if (state.pendingTasks.length === 1) {
-    el.nextTaskPreviewTitle.textContent = 'Current is last task';
-  } else {
-    el.nextTaskPreviewTitle.textContent = 'Queue clear';
+  const nextPreview = $('nextTaskPreviewTitle');
+  if (nextPreview) {
+    if (state.pendingTasks.length > 1) {
+      nextPreview.textContent = state.pendingTasks[1].title;
+    } else if (state.pendingTasks.length === 1) {
+      nextPreview.textContent = 'Current is last task';
+    } else {
+      nextPreview.textContent = 'Queue clear';
+    }
   }
 
   renderWeekStrip();
 
+  // Arena display state
+  const arena = $('focusArena');
+  const empty = $('emptyState');
+
   if (!state.currentTask) {
-    el.focusArena.style.display = 'none';
-    el.emptyState.style.display = 'flex';
+    if (arena) arena.style.display = 'none';
+    if (empty) empty.style.display = 'flex';
     refreshIcons();
     return;
   }
 
-  el.emptyState.style.display = 'none';
-  el.focusArena.style.display = 'flex';
+  if (empty) empty.style.display = 'none';
+  if (arena) arena.style.display = 'flex';
 
   const t = state.currentTask;
-  el.taskTitle.textContent = t.title;
-  el.taskDesc.textContent = t.description || '';
-  el.taskEnergyText.textContent = t.suggested_time_of_day || 'Morning Focus';
+  if ($('taskTitle')) $('taskTitle').textContent = t.title;
+  if ($('taskDesc')) $('taskDesc').textContent = t.description || '';
+  if ($('taskEnergyText')) $('taskEnergyText').textContent = t.suggested_time_of_day || 'Morning Focus';
   
   const estMins = t.time_estimate_minutes || 15;
-  el.taskTimeText.textContent = `${estMins} mins`;
-  el.sprintDurationLabel.textContent = `${estMins}m`;
-  
-  el.taskPosition.textContent = `1 of ${pending}`;
+  if ($('taskTimeText')) $('taskTimeText').textContent = `${estMins} mins`;
+  if ($('sprintDurationLabel')) $('sprintDurationLabel').textContent = `${estMins}m`;
+  if ($('taskPosition')) $('taskPosition').textContent = `1 of ${pending}`;
 
   // Subtasks list
   const subtasks = t.subtasks || [];
-  if (subtasks.length > 0) {
-    el.subtasksContainer.style.display = 'flex';
-    el.subtasksList.innerHTML = subtasks.map((st, idx) => `
+  const subtasksContainer = $('subtasksContainer');
+  const subtasksList = $('subtasksList');
+
+  if (subtasks.length > 0 && subtasksList) {
+    if (subtasksContainer) subtasksContainer.style.display = 'flex';
+    subtasksList.innerHTML = subtasks.map((st, idx) => `
       <li class="micro-step-item">
         <input type="checkbox" id="st_${idx}">
         <label for="st_${idx}"><span>${escapeHtml(st)}</span></label>
       </li>
     `).join('');
 
-    el.subtasksList.querySelectorAll('input[type="checkbox"]').forEach(chk => {
+    subtasksList.querySelectorAll('input[type="checkbox"]').forEach(chk => {
       chk.addEventListener('change', (e) => {
         const item = e.target.closest('.micro-step-item');
         if (e.target.checked) {
@@ -339,8 +290,8 @@ function updateUI() {
       });
     });
   } else {
-    el.subtasksContainer.style.display = 'none';
-    el.subtasksList.innerHTML = '';
+    if (subtasksContainer) subtasksContainer.style.display = 'none';
+    if (subtasksList) subtasksList.innerHTML = '';
   }
 
   renderQueueList();
@@ -348,40 +299,47 @@ function updateUI() {
 }
 
 function renderQueueList() {
-  if (state.pendingTasks.length === 0) {
-    el.queueList.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; padding: 12px 0;">No upcoming tasks.</p>';
-  } else {
-    el.queueList.innerHTML = state.pendingTasks.map((t, idx) => `
-      <div class="queue-item" data-task-id="${t.id}">
-        <div class="queue-item-left">
-          <div class="queue-item-title">${idx === 0 ? '👉 ' : ''}${escapeHtml(t.title)}</div>
-          <div class="queue-item-meta">⏱️ ${t.time_estimate_minutes || 15}m • ${escapeHtml(t.suggested_time_of_day || '')}</div>
+  const queueList = $('queueList');
+  const winsList = $('winsList');
+
+  if (queueList) {
+    if (state.pendingTasks.length === 0) {
+      queueList.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; padding: 12px 0;">No upcoming tasks in queue.</p>';
+    } else {
+      queueList.innerHTML = state.pendingTasks.map((t, idx) => `
+        <div class="queue-item" data-task-id="${t.id}">
+          <div class="queue-item-left">
+            <div class="queue-item-title">${idx === 0 ? '👉 ' : ''}${escapeHtml(t.title)}</div>
+            <div class="queue-item-meta">⏱️ ${t.time_estimate_minutes || 15}m • ${escapeHtml(t.suggested_time_of_day || '')}</div>
+          </div>
+          <div class="queue-item-actions">
+            ${idx > 0 ? `<button class="btn-icon-sm btn-move-up" title="Move Up" onclick="moveTask(${idx}, -1)">▲</button>` : ''}
+            ${idx < state.pendingTasks.length - 1 ? `<button class="btn-icon-sm btn-move-down" title="Move Down" onclick="moveTask(${idx}, 1)">▼</button>` : ''}
+            <button class="btn-icon-sm btn-icon-danger" title="Delete Task" onclick="deleteTaskItem(${t.id})">
+              <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+            </button>
+          </div>
         </div>
-        <div class="queue-item-actions">
-          ${idx > 0 ? `<button class="btn-icon-sm btn-move-up" title="Move Up" onclick="moveTask(${idx}, -1)">▲</button>` : ''}
-          ${idx < state.pendingTasks.length - 1 ? `<button class="btn-icon-sm btn-move-down" title="Move Down" onclick="moveTask(${idx}, 1)">▼</button>` : ''}
-          <button class="btn-icon-sm btn-icon-danger" title="Delete Task" onclick="deleteTaskItem(${t.id})">
+      `).join('');
+    }
+  }
+
+  if (winsList) {
+    if (state.completedTasks.length === 0) {
+      winsList.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; padding: 12px 0;">No wins completed yet today.</p>';
+    } else {
+      winsList.innerHTML = state.completedTasks.map(t => `
+        <div class="queue-item" style="border-left: 3px solid var(--accent-green);">
+          <div class="queue-item-left">
+            <div class="queue-item-title" style="text-decoration: line-through; color: var(--text-secondary);">${escapeHtml(t.title)}</div>
+            <div class="queue-item-meta">Conquered ✨</div>
+          </div>
+          <button class="btn-icon-sm btn-icon-danger" title="Delete" onclick="deleteTaskItem(${t.id})">
             <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
           </button>
         </div>
-      </div>
-    `).join('');
-  }
-
-  if (state.completedTasks.length === 0) {
-    el.winsList.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; padding: 12px 0;">No wins completed yet today.</p>';
-  } else {
-    el.winsList.innerHTML = state.completedTasks.map(t => `
-      <div class="queue-item" style="border-left: 3px solid var(--accent-green);">
-        <div class="queue-item-left">
-          <div class="queue-item-title" style="text-decoration: line-through; color: var(--text-secondary);">${escapeHtml(t.title)}</div>
-          <div class="queue-item-meta">Conquered ✨</div>
-        </div>
-        <button class="btn-icon-sm btn-icon-danger" title="Delete" onclick="deleteTaskItem(${t.id})">
-          <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
-        </button>
-      </div>
-    `).join('');
+      `).join('');
+    }
   }
 }
 
@@ -483,9 +441,12 @@ async function handleSkipTask() {
 async function handleStuckDechunker() {
   if (!state.currentTask) return;
 
-  const origBtnContent = el.stuckBtn.innerHTML;
-  el.stuckBtn.innerHTML = '<span>⏳ Breaking into 2-min steps...</span>';
-  el.stuckBtn.disabled = true;
+  const btn = $('stuckBtn');
+  const origBtnContent = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.innerHTML = '<span>⏳ Breaking into 2-min steps...</span>';
+    btn.disabled = true;
+  }
 
   try {
     const res = await fetch(`/api/tasks/${state.currentTask.id}/breakdown`, {
@@ -499,8 +460,10 @@ async function handleStuckDechunker() {
   } catch (e) {
     console.error('Error breaking down task', e);
   } finally {
-    el.stuckBtn.innerHTML = origBtnContent;
-    el.stuckBtn.disabled = false;
+    if (btn) {
+      btn.innerHTML = origBtnContent;
+      btn.disabled = false;
+    }
     refreshIcons();
   }
 }
@@ -508,26 +471,33 @@ async function handleStuckDechunker() {
 // --- Braindump Handlers ---
 
 async function handleBrainDumpSubmit() {
-  const text = el.braindumpInput.value.trim();
+  const input = $('braindumpInput');
+  const text = input ? input.value.trim() : '';
   if (!text) return;
 
-  el.braindumpInputState.style.display = 'none';
-  el.aiLoadingState.style.display = 'flex';
-  el.loadingStepTitle.textContent = "Reading your brain dump...";
-  el.loadingStepSub.textContent = "Extracting thoughts and filtering visual noise...";
-  el.progressBarFill.style.width = "30%";
+  const inputState = $('braindumpInputState');
+  const loadingState = $('aiLoadingState');
+  const progressFill = $('progressBarFill');
+  const stepTitle = $('loadingStepTitle');
+  const stepSub = $('loadingStepSub');
+
+  if (inputState) inputState.style.display = 'none';
+  if (loadingState) loadingState.style.display = 'flex';
+  if (stepTitle) stepTitle.textContent = "Reading your brain dump...";
+  if (stepSub) stepSub.textContent = "Extracting thoughts and filtering visual noise...";
+  if (progressFill) progressFill.style.width = "30%";
 
   const progressTimer1 = setTimeout(() => {
-    el.loadingStepTitle.textContent = "De-chunking into atomic steps...";
-    el.loadingStepSub.textContent = "Structuring low-friction 2-minute starter actions...";
-    el.progressBarFill.style.width = "65%";
-  }, 900);
+    if (stepTitle) stepTitle.textContent = "De-chunking into atomic steps...";
+    if (stepSub) stepSub.textContent = "Structuring low-friction 2-minute starter actions...";
+    if (progressFill) progressFill.style.width = "65%";
+  }, 800);
 
   const progressTimer2 = setTimeout(() => {
-    el.loadingStepTitle.textContent = "Pacing energy & durations...";
-    el.loadingStepSub.textContent = "Assigning calm timeboxes to prevent time blindness...";
-    el.progressBarFill.style.width = "90%";
-  }, 1800);
+    if (stepTitle) stepTitle.textContent = "Pacing energy & durations...";
+    if (stepSub) stepSub.textContent = "Assigning calm timeboxes to prevent time blindness...";
+    if (progressFill) progressFill.style.width = "90%";
+  }, 1600);
 
   try {
     const res = await fetch('/api/braindump/preview', {
@@ -539,12 +509,12 @@ async function handleBrainDumpSubmit() {
     
     clearTimeout(progressTimer1);
     clearTimeout(progressTimer2);
-    el.progressBarFill.style.width = "100%";
+    if (progressFill) progressFill.style.width = "100%";
 
     setTimeout(() => {
       resetBraindumpModal();
       openReviewModal(data);
-    }, 400);
+    }, 300);
 
   } catch (e) {
     clearTimeout(progressTimer1);
@@ -556,42 +526,55 @@ async function handleBrainDumpSubmit() {
 }
 
 function resetBraindumpModal() {
-  el.braindumpModal.style.display = 'none';
-  el.aiLoadingState.style.display = 'none';
-  el.braindumpInputState.style.display = 'block';
-  el.progressBarFill.style.width = '0%';
+  closeModal($('braindumpModal'));
+  const loadingState = $('aiLoadingState');
+  const inputState = $('braindumpInputState');
+  const progressFill = $('progressBarFill');
+
+  if (loadingState) loadingState.style.display = 'none';
+  if (inputState) inputState.style.display = 'block';
+  if (progressFill) progressFill.style.width = '0%';
 }
 
 function openReviewModal(data) {
   state.proposedTasks = (data.tasks || []).map(t => ({ ...t, selected: true }));
   state.selectedClarificationOption = '';
 
-  if (data.has_clarification && data.clarification_question && (data.clarification_options || []).length > 0) {
-    el.clarificationBox.style.display = 'flex';
-    el.clarificationQuestionText.textContent = data.clarification_question;
-    el.clarificationOptions.innerHTML = data.clarification_options.map((opt, i) => `
-      <button class="mcq-chip" data-opt="${escapeHtml(opt)}">${escapeHtml(opt)}</button>
-    `).join('');
+  const clarBox = $('clarificationBox');
+  const clarQuestion = $('clarificationQuestionText');
+  const clarOptions = $('clarificationOptions');
 
-    el.clarificationOptions.querySelectorAll('.mcq-chip').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        el.clarificationOptions.querySelectorAll('.mcq-chip').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        state.selectedClarificationOption = btn.getAttribute('data-opt');
+  if (data.has_clarification && data.clarification_question && (data.clarification_options || []).length > 0) {
+    if (clarBox) clarBox.style.display = 'flex';
+    if (clarQuestion) clarQuestion.textContent = data.clarification_question;
+    if (clarOptions) {
+      clarOptions.innerHTML = data.clarification_options.map((opt) => `
+        <button class="mcq-chip" data-opt="${escapeHtml(opt)}">${escapeHtml(opt)}</button>
+      `).join('');
+
+      clarOptions.querySelectorAll('.mcq-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          clarOptions.querySelectorAll('.mcq-chip').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          state.selectedClarificationOption = btn.getAttribute('data-opt');
+        });
       });
-    });
+    }
   } else {
-    el.clarificationBox.style.display = 'none';
-    el.clarificationOptions.innerHTML = '';
+    if (clarBox) clarBox.style.display = 'none';
+    if (clarOptions) clarOptions.innerHTML = '';
   }
 
   renderPreviewTasks();
-  el.reviewModal.style.display = 'flex';
+  openModal($('reviewModal'));
   refreshIcons();
 }
 
 function renderPreviewTasks() {
-  el.previewTasksList.innerHTML = state.proposedTasks.map((t, idx) => `
+  const previewList = $('previewTasksList');
+  if (!previewList) return;
+
+  previewList.innerHTML = state.proposedTasks.map((t, idx) => `
     <div class="preview-task-item" onclick="toggleTaskSelection(${idx})">
       <input type="checkbox" id="prev_chk_${idx}" ${t.selected ? 'checked' : ''} onclick="event.stopPropagation(); toggleTaskSelection(${idx});">
       <div class="preview-task-info">
@@ -615,16 +598,19 @@ window.toggleTaskSelection = function(index) {
 
 function updateReviewCount() {
   const selectedCount = state.proposedTasks.filter(t => t.selected).length;
-  el.selectedCountLabel.textContent = selectedCount;
-  el.confirmTasksBtn.disabled = selectedCount === 0;
+  if ($('selectedCountLabel')) $('selectedCountLabel').textContent = selectedCount;
+  if ($('confirmTasksBtn')) $('confirmTasksBtn').disabled = selectedCount === 0;
 }
 
 async function handleConfirmTasks() {
   const selected = state.proposedTasks.filter(t => t.selected);
   if (selected.length === 0) return;
 
-  el.confirmTasksBtn.disabled = true;
-  el.confirmTasksBtn.innerHTML = '<span>⏳ Adding...</span>';
+  const btn = $('confirmTasksBtn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span>⏳ Adding to Focus Flow...</span>';
+  }
 
   try {
     await fetch('/api/braindump/confirm', {
@@ -636,8 +622,9 @@ async function handleConfirmTasks() {
       })
     });
 
-    el.reviewModal.style.display = 'none';
-    el.braindumpInput.value = '';
+    closeModal($('reviewModal'));
+    const input = $('braindumpInput');
+    if (input) input.value = '';
     chime.playSuccess();
     triggerConfetti();
     await loadTasks();
@@ -645,7 +632,7 @@ async function handleConfirmTasks() {
     console.error('Error confirming tasks', e);
     alert('Failed to save selected tasks. Please try again.');
   } finally {
-    el.confirmTasksBtn.disabled = false;
+    if (btn) btn.disabled = false;
   }
 }
 
@@ -659,11 +646,11 @@ function startSprintModal() {
   state.sprint.secondsLeft = state.sprint.totalSeconds;
   state.sprint.isPaused = false;
 
-  el.sprintTaskTitle.textContent = state.currentTask.title;
-  el.sprintTip.textContent = "Take a slow breath. Just do the very first 2-minute starter step.";
-  el.pauseSprintBtn.innerHTML = '<i data-lucide="pause"></i><span>Pause</span>';
-  el.sprintModal.style.display = 'flex';
-
+  if ($('sprintTaskTitle')) $('sprintTaskTitle').textContent = state.currentTask.title;
+  if ($('sprintTip')) $('sprintTip').textContent = "Take a slow breath. Just do the very first 2-minute starter step.";
+  if ($('pauseSprintBtn')) $('pauseSprintBtn').innerHTML = '<i data-lucide="pause"></i><span>Pause</span>';
+  
+  openModal($('sprintModal'));
   updateTimerUI();
   clearInterval(state.sprint.timerInterval);
   refreshIcons();
@@ -675,8 +662,8 @@ function startSprintModal() {
 
       if (state.sprint.secondsLeft <= 0) {
         clearInterval(state.sprint.timerInterval);
-        el.sprintTip.textContent = "Sprint time is up! Did you finish, or need a gentle 5-minute extension?";
-        el.timerTimeText.textContent = "00:00";
+        if ($('sprintTip')) $('sprintTip').textContent = "Sprint time is up! Did you finish, or need a gentle 5-minute extension?";
+        if ($('timerTimeText')) $('timerTimeText').textContent = "00:00";
         chime.playSuccess();
       }
     }
@@ -686,17 +673,25 @@ function startSprintModal() {
 function updateTimerUI() {
   const mins = Math.max(0, Math.floor(state.sprint.secondsLeft / 60));
   const secs = Math.max(0, state.sprint.secondsLeft % 60);
-  el.timerTimeText.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  if ($('timerTimeText')) {
+    $('timerTimeText').textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  }
 
   const circumference = 2 * Math.PI * 88;
   const progressRatio = state.sprint.totalSeconds > 0 ? (state.sprint.secondsLeft / state.sprint.totalSeconds) : 0;
   const offset = circumference * (1 - progressRatio);
-  el.timerProgressRing.style.strokeDashoffset = offset;
+  if ($('timerProgressRing')) {
+    $('timerProgressRing').style.strokeDashoffset = offset;
+  }
 }
 
 function togglePauseSprint() {
   state.sprint.isPaused = !state.sprint.isPaused;
-  el.pauseSprintBtn.innerHTML = state.sprint.isPaused ? '<i data-lucide="play"></i><span>Resume</span>' : '<i data-lucide="pause"></i><span>Pause</span>';
+  if ($('pauseSprintBtn')) {
+    $('pauseSprintBtn').innerHTML = state.sprint.isPaused 
+      ? '<i data-lucide="play"></i><span>Resume</span>' 
+      : '<i data-lucide="pause"></i><span>Pause</span>';
+  }
   refreshIcons();
 }
 
@@ -708,7 +703,7 @@ function extendSprint() {
 
 function closeSprintModal() {
   clearInterval(state.sprint.timerInterval);
-  el.sprintModal.style.display = 'none';
+  closeModal($('sprintModal'));
 }
 
 function triggerConfetti() {
@@ -731,146 +726,261 @@ function escapeHtml(text) {
 // --- Setup Event Listeners ---
 
 function setupListeners() {
-  el.themeToggleBtn.addEventListener('click', toggleTheme);
-  el.markDoneBtn.addEventListener('click', handleCompleteCurrentTask);
-  el.startSprintBtn.addEventListener('click', startSprintModal);
-  el.stuckBtn.addEventListener('click', handleStuckDechunker);
-  el.skipTaskBtn.addEventListener('click', handleSkipTask);
+  // Theme Toggle
+  const themeBtn = $('themeToggleBtn');
+  if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
 
-  el.peekToggleBtn.addEventListener('click', () => {
-    el.peekDrawer.classList.add('open');
-    refreshIcons();
-  });
-  el.closeDrawerBtn.addEventListener('click', () => el.peekDrawer.classList.remove('open'));
-  el.shuffleTasksBtn.addEventListener('click', shufflePendingTasks);
-  
-  el.tabPending.addEventListener('click', () => {
-    el.tabPending.classList.add('active');
-    el.tabCompleted.classList.remove('active');
-    el.panePending.classList.add('active');
-    el.paneCompleted.classList.remove('active');
-  });
+  // Main Arena Buttons
+  const doneBtn = $('markDoneBtn');
+  if (doneBtn) doneBtn.addEventListener('click', handleCompleteCurrentTask);
 
-  el.tabCompleted.addEventListener('click', () => {
-    el.tabCompleted.classList.add('active');
-    el.tabPending.classList.remove('active');
-    el.paneCompleted.classList.add('active');
-    el.panePending.classList.remove('active');
-  });
+  const sprintBtn = $('startSprintBtn');
+  if (sprintBtn) sprintBtn.addEventListener('click', startSprintModal);
 
-  const openBraindump = () => { 
+  const stuckBtn = $('stuckBtn');
+  if (stuckBtn) stuckBtn.addEventListener('click', handleStuckDechunker);
+
+  const skipBtn = $('skipTaskBtn');
+  if (skipBtn) skipBtn.addEventListener('click', handleSkipTask);
+
+  // Peek Drawer Triggers
+  const peekBtn = $('peekToggleBtn');
+  const drawer = $('peekDrawer');
+  const closeDrawer = $('closeDrawerBtn');
+
+  if (peekBtn && drawer) {
+    peekBtn.addEventListener('click', () => {
+      drawer.classList.add('open');
+      refreshIcons();
+    });
+  }
+
+  if (closeDrawer && drawer) {
+    closeDrawer.addEventListener('click', () => {
+      drawer.classList.remove('open');
+    });
+  }
+
+  const shuffleBtn = $('shuffleTasksBtn');
+  if (shuffleBtn) shuffleBtn.addEventListener('click', shufflePendingTasks);
+
+  // Drawer Tabs
+  const tabPending = $('tabPending');
+  const tabCompleted = $('tabCompleted');
+  const panePending = $('panePending');
+  const paneCompleted = $('paneCompleted');
+
+  if (tabPending && tabCompleted && panePending && paneCompleted) {
+    tabPending.addEventListener('click', () => {
+      tabPending.classList.add('active');
+      tabCompleted.classList.remove('active');
+      panePending.classList.add('active');
+      paneCompleted.classList.remove('active');
+      refreshIcons();
+    });
+
+    tabCompleted.addEventListener('click', () => {
+      tabCompleted.classList.add('active');
+      tabPending.classList.remove('active');
+      paneCompleted.classList.add('active');
+      panePending.classList.remove('active');
+      refreshIcons();
+    });
+  }
+
+  // Braindump Modal
+  const openBraindump = () => {
     resetBraindumpModal();
-    el.braindumpModal.style.display = 'flex'; 
-    el.braindumpInput.focus();
+    openModal($('braindumpModal'));
+    const input = $('braindumpInput');
+    if (input) input.focus();
     refreshIcons();
   };
-  el.openBraindumpBtn.addEventListener('click', openBraindump);
-  el.emptyBraindumpBtn.addEventListener('click', openBraindump);
-  el.closeBraindumpBtn.addEventListener('click', resetBraindumpModal);
-  el.submitBraindumpBtn.addEventListener('click', handleBrainDumpSubmit);
 
-  // Global Keyboard Shortcut: Cmd+K / Ctrl+K for Brain Dump
+  const braindumpNavBtn = $('openBraindumpBtn');
+  if (braindumpNavBtn) braindumpNavBtn.addEventListener('click', openBraindump);
+
+  const emptyBraindump = $('emptyBraindumpBtn');
+  if (emptyBraindump) emptyBraindump.addEventListener('click', openBraindump);
+
+  const closeBraindump = $('closeBraindumpBtn');
+  if (closeBraindump) closeBraindump.addEventListener('click', resetBraindumpModal);
+
+  const submitBraindump = $('submitBraindumpBtn');
+  if (submitBraindump) submitBraindump.addEventListener('click', handleBrainDumpSubmit);
+
+  // Global Keyboard Shortcut: Cmd+K / Ctrl+K for Brain Dump & Escape to dismiss modals
   window.addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
       e.preventDefault();
       openBraindump();
     }
-  });
-
-  el.closeReviewBtn.addEventListener('click', () => el.reviewModal.style.display = 'none');
-  el.cancelReviewBtn.addEventListener('click', () => {
-    el.reviewModal.style.display = 'none';
-    el.braindumpModal.style.display = 'flex';
-  });
-  el.confirmTasksBtn.addEventListener('click', handleConfirmTasks);
-
-  el.pauseSprintBtn.addEventListener('click', togglePauseSprint);
-  el.extendSprintBtn.addEventListener('click', extendSprint);
-  el.finishSprintDoneBtn.addEventListener('click', async () => {
-    closeSprintModal();
-    await handleCompleteCurrentTask();
-  });
-  el.exitSprintBtn.addEventListener('click', closeSprintModal);
-
-  el.openSettingsBtn.addEventListener('click', () => {
-    el.settingsModal.style.display = 'flex';
-    el.testFeedback.textContent = '';
-    refreshIcons();
-  });
-  el.closeSettingsBtn.addEventListener('click', () => el.settingsModal.style.display = 'none');
-
-  el.testApiKeyBtn.addEventListener('click', async () => {
-    const key = el.geminiApiKey.value.trim();
-    if (!key) {
-      el.testFeedback.className = 'test-feedback error';
-      el.testFeedback.textContent = 'Please enter an API key to test.';
-      return;
+    if (e.key === 'Escape') {
+      closeModal($('braindumpModal'));
+      closeModal($('reviewModal'));
+      closeModal($('settingsModal'));
+      closeModal($('sprintModal'));
+      if (drawer) drawer.classList.remove('open');
     }
-    el.testApiKeyBtn.disabled = true;
-    el.testFeedback.className = 'test-feedback';
-    el.testFeedback.textContent = 'Testing connection with Gemini...';
+  });
 
-    try {
-      const res = await fetch('/api/test-gemini', {
+  // Modal Backdrop Click to Dismiss
+  document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) {
+        closeModal(backdrop);
+      }
+    });
+  });
+
+  // Review Modal Controls
+  const closeReview = $('closeReviewBtn');
+  if (closeReview) closeReview.addEventListener('click', () => closeModal($('reviewModal')));
+
+  const cancelReview = $('cancelReviewBtn');
+  if (cancelReview) {
+    cancelReview.addEventListener('click', () => {
+      closeModal($('reviewModal'));
+      openModal($('braindumpModal'));
+    });
+  }
+
+  const confirmTasks = $('confirmTasksBtn');
+  if (confirmTasks) confirmTasks.addEventListener('click', handleConfirmTasks);
+
+  // Sprint Controls
+  const pauseSprint = $('pauseSprintBtn');
+  if (pauseSprint) pauseSprint.addEventListener('click', togglePauseSprint);
+
+  const extendSprintBtn = $('extendSprintBtn');
+  if (extendSprintBtn) extendSprintBtn.addEventListener('click', extendSprint);
+
+  const finishSprint = $('finishSprintDoneBtn');
+  if (finishSprint) {
+    finishSprint.addEventListener('click', async () => {
+      closeSprintModal();
+      await handleCompleteCurrentTask();
+    });
+  }
+
+  const exitSprint = $('exitSprintBtn');
+  if (exitSprint) exitSprint.addEventListener('click', closeSprintModal);
+
+  // Settings Modal
+  const openSettings = $('openSettingsBtn');
+  if (openSettings) {
+    openSettings.addEventListener('click', () => {
+      openModal($('settingsModal'));
+      if ($('testFeedback')) $('testFeedback').textContent = '';
+      refreshIcons();
+    });
+  }
+
+  const closeSettings = $('closeSettingsBtn');
+  if (closeSettings) closeSettings.addEventListener('click', () => closeModal($('settingsModal')));
+
+  const testApiKey = $('testApiKeyBtn');
+  if (testApiKey) {
+    testApiKey.addEventListener('click', async () => {
+      const apiKeyInput = $('geminiApiKey');
+      const key = apiKeyInput ? apiKeyInput.value.trim() : '';
+      const feedback = $('testFeedback');
+      const modelSelect = $('geminiModelSelect');
+
+      if (!key) {
+        if (feedback) {
+          feedback.className = 'test-feedback error';
+          feedback.textContent = 'Please enter an API key to test.';
+        }
+        return;
+      }
+
+      testApiKey.disabled = true;
+      if (feedback) {
+        feedback.className = 'test-feedback';
+        feedback.textContent = 'Testing connection with Gemini...';
+      }
+
+      try {
+        const res = await fetch('/api/test-gemini', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ api_key: key, model: modelSelect ? modelSelect.value : 'gemini-3.6-flash' })
+        });
+        const data = await res.json();
+        if (data.success) {
+          if (feedback) {
+            feedback.className = 'test-feedback success';
+            feedback.textContent = '✨ Connection successful!';
+          }
+        } else {
+          if (feedback) {
+            feedback.className = 'test-feedback error';
+            feedback.textContent = `❌ ${data.error || 'Connection failed'}`;
+          }
+        }
+      } catch (e) {
+        if (feedback) {
+          feedback.className = 'test-feedback error';
+          feedback.textContent = 'Failed to reach backend test endpoint.';
+        }
+      } finally {
+        testApiKey.disabled = false;
+      }
+    });
+  }
+
+  const saveSettings = $('saveSettingsBtn');
+  if (saveSettings) {
+    saveSettings.addEventListener('click', async () => {
+      const modelSelect = $('geminiModelSelect');
+      const apiKeyInput = $('geminiApiKey');
+      const payload = {
+        gemini_model: modelSelect ? modelSelect.value : 'gemini-3.6-flash',
+        onboarded: 'true'
+      };
+      if (apiKeyInput && apiKeyInput.value.trim()) {
+        payload.gemini_api_key = apiKeyInput.value.trim();
+      }
+      await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ api_key: key, model: el.geminiModelSelect.value })
+        body: JSON.stringify(payload)
       });
-      const data = await res.json();
-      if (data.success) {
-        el.testFeedback.className = 'test-feedback success';
-        el.testFeedback.textContent = '✨ Connection successful!';
-      } else {
-        el.testFeedback.className = 'test-feedback error';
-        el.testFeedback.textContent = `❌ ${data.error || 'Connection failed'}`;
+      closeModal($('settingsModal'));
+      await fetchSettings();
+    });
+  }
+
+  const clearAll = $('clearAllTasksBtn');
+  if (clearAll) {
+    clearAll.addEventListener('click', async () => {
+      if (confirm('Clear all pending and completed tasks? This cannot be undone.')) {
+        await fetch('/api/tasks', { method: 'DELETE' });
+        closeModal($('settingsModal'));
+        await loadTasks();
       }
-    } catch (e) {
-      el.testFeedback.className = 'test-feedback error';
-      el.testFeedback.textContent = 'Failed to reach backend test endpoint.';
-    } finally {
-      el.testApiKeyBtn.disabled = false;
-    }
-  });
-
-  el.saveSettingsBtn.addEventListener('click', async () => {
-    const payload = {
-      gemini_model: el.geminiModelSelect.value,
-      onboarded: 'true'
-    };
-    if (el.geminiApiKey.value.trim()) {
-      payload.gemini_api_key = el.geminiApiKey.value.trim();
-    }
-    await fetch('/api/settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
     });
-    el.settingsModal.style.display = 'none';
-    await fetchSettings();
-  });
+  }
 
-  el.clearAllTasksBtn.addEventListener('click', async () => {
-    if (confirm('Clear all pending and completed tasks? This cannot be undone.')) {
-      await fetch('/api/tasks', { method: 'DELETE' });
-      el.settingsModal.style.display = 'none';
-      await loadTasks();
-    }
-  });
+  const finishOnboarding = $('finishOnboardingBtn');
+  if (finishOnboarding) {
+    finishOnboarding.addEventListener('click', async () => {
+      const onboardInput = $('onboardingApiKey');
+      const key = onboardInput ? onboardInput.value.trim() : '';
+      const payload = { onboarded: 'true' };
+      if (key) payload.gemini_api_key = key;
 
-  el.finishOnboardingBtn.addEventListener('click', async () => {
-    const key = el.onboardingApiKey.value.trim();
-    const payload = { onboarded: 'true' };
-    if (key) payload.gemini_api_key = key;
+      await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-    await fetch('/api/settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      closeModal($('onboardingModal'));
+      await fetchSettings();
     });
-
-    el.onboardingModal.style.display = 'none';
-    await fetchSettings();
-  });
+  }
 }
 
 // Initial Boot
