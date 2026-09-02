@@ -998,6 +998,27 @@ textarea:focus {
   line-height: 1.5;
 }
 
+.sprint-subtasks-box {
+  width: 100%;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.sprint-subtasks-header {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent-amber);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .sprint-controls {
   display: flex;
   gap: 8px;

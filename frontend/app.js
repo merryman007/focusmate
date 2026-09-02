@@ -570,6 +570,36 @@ function startSprintModal() {
   if ($('sprintTip')) $('sprintTip').textContent = "Take a slow breath. Just do the very first 2-minute starter step.";
   if ($('pauseSprintBtn')) $('pauseSprintBtn').textContent = '⏸️ Pause';
   
+  // Render subtasks if present
+  const subtasks = state.currentTask.subtasks || [];
+  const sprintSubContainer = $('sprintSubtasksContainer');
+  const sprintSubList = $('sprintSubtasksList');
+
+  if (subtasks.length > 0 && sprintSubList) {
+    if (sprintSubContainer) sprintSubContainer.style.display = 'flex';
+    sprintSubList.innerHTML = subtasks.map((st, idx) => `
+      <li class="micro-step-item">
+        <input type="checkbox" id="sprint_st_${idx}">
+        <label for="sprint_st_${idx}"><span>${escapeHtml(st)}</span></label>
+      </li>
+    `).join('');
+
+    sprintSubList.querySelectorAll('input[type="checkbox"]').forEach(chk => {
+      chk.addEventListener('change', (e) => {
+        const item = e.target.closest('.micro-step-item');
+        if (e.target.checked) {
+          item.classList.add('done');
+          chime.playSuccess();
+        } else {
+          item.classList.remove('done');
+        }
+      });
+    });
+  } else {
+    if (sprintSubContainer) sprintSubContainer.style.display = 'none';
+    if (sprintSubList) sprintSubList.innerHTML = '';
+  }
+
   showModal('sprintModal');
   updateTimerUI();
   clearInterval(state.sprint.timerInterval);
