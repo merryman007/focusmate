@@ -989,6 +989,28 @@ textarea:focus {
   font-size: 2.3rem;
   font-weight: 850;
   letter-spacing: -0.02em;
+  transition: color 200ms var(--ease-out);
+}
+
+.timer-time.is-overtime {
+  color: var(--accent-green);
+}
+
+.timer-ring-progress.is-overtime {
+  stroke: var(--accent-green);
+  filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.4));
+}
+
+.tag-sprint.tag-overtime {
+  color: var(--accent-green);
+  border-color: rgba(34, 197, 94, 0.35);
+  background: var(--accent-green-subtle);
+  animation: overtimePulse 2s infinite ease-in-out;
+}
+
+@keyframes overtimePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.03); }
 }
 
 .sprint-tip {

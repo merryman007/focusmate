@@ -44,9 +44,63 @@ class DopamineChime {
       console.log('Audio feedback not available', e);
     }
   }
+
+  playSprintZenBell() {
+    try {
+      this.init();
+      if (!this.ctx) return;
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+
+      const now = this.ctx.currentTime;
+      // Warm meditative singing bowl harmonic resonance (432Hz fundamental, 864Hz octave, 1296Hz fifth)
+      const harmonics = [
+        { freq: 432, gain: 0.16, decay: 2.8 },
+        { freq: 864, gain: 0.09, decay: 2.2 },
+        { freq: 1296, gain: 0.05, decay: 1.6 }
+      ];
+
+      harmonics.forEach(({ freq, gain, decay }) => {
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+
+        g.gain.setValueAtTime(0.001, now);
+        g.gain.exponentialRampToValueAtTime(gain, now + 0.04);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + decay);
+
+        osc.connect(g);
+        g.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + decay + 0.1);
+      });
+    } catch (e) {
+      console.log('Zen bell audio not available', e);
+    }
+  }
 }
 
 const chime = new DopamineChime();
+
+// --- Notifications Helper ---
+function requestNotificationPermission() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+
+function sendSprintNotification(taskTitle) {
+  if ('Notification' in window && Notification.permission === 'granted' && document.hidden) {
+    try {
+      new Notification('Focus Sprint Goal Reached! ✨', {
+        body: `"${taskTitle}" timebox is complete. You are now in Flow Overtime — keep riding the momentum or finish whenever ready!`,
+      });
+    } catch (e) {
+      console.log('Notification trigger error', e);
+    }
+  }
+}
 
 // --- State Variables ---
 let state = {
@@ -65,6 +119,8 @@ let state = {
     totalSeconds: 900,
     secondsLeft: 900,
     isPaused: false,
+    isOvertime: false,
+    overtimeSeconds: 0,
   },
   theme: localStorage.getItem('focusmate_theme') || 'dark'
 };
@@ -193,7 +249,7 @@ function updateUI() {
   if ($('sprintDurationLabel')) $('sprintDurationLabel').textContent = `${estMins}m`;
   if ($('taskPosition')) $('taskPosition').textContent = `1 of ${pending}`;
 
-  // Subtasks
+  // Subtasks on main card
   const subtasks = t.subtasks || [];
   const subtasksContainer = $('subtasksContainer');
   const subtasksList = $('subtasksList');
@@ -306,7 +362,7 @@ async function shufflePendingTasks() {
   const shuffled = [...state.pendingTasks];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[j], shuffled[i]] = [shuffled[i], shuffled[j]];
+    [shuffled[j], shuffled[i]] = [shuffled[j], shuffled[i]];
   }
 
   const taskIds = shuffled.map(t => t.id);
@@ -556,20 +612,36 @@ async function handleConfirmTasks() {
   }
 }
 
-// --- Soft Focus Sprint Timer ---
+// --- Soft Focus Sprint Timer with Flow Overtime Mode ---
 
 function startSprintModal() {
   if (!state.currentTask) return;
+
+  requestNotificationPermission();
 
   const estMinutes = state.currentTask.time_estimate_minutes || 15;
   state.sprint.totalSeconds = estMinutes * 60;
   state.sprint.secondsLeft = state.sprint.totalSeconds;
   state.sprint.isPaused = false;
+  state.sprint.isOvertime = false;
+  state.sprint.overtimeSeconds = 0;
 
   if ($('sprintTaskTitle')) $('sprintTaskTitle').textContent = state.currentTask.title;
   if ($('sprintTip')) $('sprintTip').textContent = "Take a slow breath. Just do the very first 2-minute starter step.";
   if ($('pauseSprintBtn')) $('pauseSprintBtn').textContent = '⏸️ Pause';
   
+  const sprintTag = document.querySelector('.sprint-card .tag-sprint');
+  if (sprintTag) {
+    sprintTag.textContent = 'FOCUS SPRINT';
+    sprintTag.classList.remove('tag-overtime');
+  }
+
+  const timeLabel = $('timerTimeText');
+  if (timeLabel) timeLabel.classList.remove('is-overtime');
+
+  const progressRing = $('timerProgressRing');
+  if (progressRing) progressRing.classList.remove('is-overtime');
+
   // Render subtasks if present
   const subtasks = state.currentTask.subtasks || [];
   const sprintSubContainer = $('sprintSubtasksContainer');
@@ -606,31 +678,63 @@ function startSprintModal() {
 
   state.sprint.timerInterval = setInterval(() => {
     if (!state.sprint.isPaused) {
-      state.sprint.secondsLeft--;
-      updateTimerUI();
+      if (!state.sprint.isOvertime) {
+        state.sprint.secondsLeft--;
+        updateTimerUI();
 
-      if (state.sprint.secondsLeft <= 0) {
-        clearInterval(state.sprint.timerInterval);
-        if ($('sprintTip')) $('sprintTip').textContent = "Sprint time is up! Did you finish, or need a gentle 5-minute extension?";
-        if ($('timerTimeText')) $('timerTimeText').textContent = "00:00";
-        chime.playSuccess();
+        if (state.sprint.secondsLeft <= 0) {
+          // Timebox reached -> Seamlessly transition to Flow Overtime!
+          state.sprint.isOvertime = true;
+          state.sprint.overtimeSeconds = 0;
+          chime.playSprintZenBell();
+          sendSprintNotification(state.currentTask.title);
+
+          if (sprintTag) {
+            sprintTag.textContent = '✨ FLOW OVERTIME';
+            sprintTag.classList.add('tag-overtime');
+          }
+          if (timeLabel) timeLabel.classList.add('is-overtime');
+          if (progressRing) progressRing.classList.add('is-overtime');
+          if ($('sprintTip')) {
+            $('sprintTip').textContent = "Sprint goal reached! You're in flow overtime. Keep riding the wave or finish whenever ready.";
+          }
+        }
+      } else {
+        // Flow Overtime Ticking UP
+        state.sprint.overtimeSeconds++;
+        updateTimerUI();
       }
     }
   }, 1000);
 }
 
 function updateTimerUI() {
-  const mins = Math.max(0, Math.floor(state.sprint.secondsLeft / 60));
-  const secs = Math.max(0, state.sprint.secondsLeft % 60);
-  if ($('timerTimeText')) {
-    $('timerTimeText').textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  }
+  const timeLabel = $('timerTimeText');
+  const progressRing = $('timerProgressRing');
 
-  const circumference = 2 * Math.PI * 88;
-  const progressRatio = state.sprint.totalSeconds > 0 ? (state.sprint.secondsLeft / state.sprint.totalSeconds) : 0;
-  const offset = circumference * (1 - progressRatio);
-  if ($('timerProgressRing')) {
-    $('timerProgressRing').style.strokeDashoffset = offset;
+  if (!state.sprint.isOvertime) {
+    const mins = Math.max(0, Math.floor(state.sprint.secondsLeft / 60));
+    const secs = Math.max(0, state.sprint.secondsLeft % 60);
+    if (timeLabel) {
+      timeLabel.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    const circumference = 2 * Math.PI * 88;
+    const progressRatio = state.sprint.totalSeconds > 0 ? (state.sprint.secondsLeft / state.sprint.totalSeconds) : 0;
+    const offset = circumference * (1 - progressRatio);
+    if (progressRing) {
+      progressRing.style.strokeDashoffset = offset;
+    }
+  } else {
+    // Flow Overtime counter (+MM:SS)
+    const mins = Math.floor(state.sprint.overtimeSeconds / 60);
+    const secs = state.sprint.overtimeSeconds % 60;
+    if (timeLabel) {
+      timeLabel.textContent = `+${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+    if (progressRing) {
+      progressRing.style.strokeDashoffset = 0;
+    }
   }
 }
 
@@ -642,8 +746,27 @@ function togglePauseSprint() {
 }
 
 function extendSprint() {
-  state.sprint.secondsLeft += 300;
-  state.sprint.totalSeconds += 300;
+  if (state.sprint.isOvertime) {
+    state.sprint.isOvertime = false;
+    state.sprint.secondsLeft = 300;
+    state.sprint.totalSeconds = 300;
+
+    const sprintTag = document.querySelector('.sprint-card .tag-sprint');
+    if (sprintTag) {
+      sprintTag.textContent = 'FOCUS SPRINT';
+      sprintTag.classList.remove('tag-overtime');
+    }
+    const timeLabel = $('timerTimeText');
+    if (timeLabel) timeLabel.classList.remove('is-overtime');
+    const progressRing = $('timerProgressRing');
+    if (progressRing) progressRing.classList.remove('is-overtime');
+    if ($('sprintTip')) {
+      $('sprintTip').textContent = "Added +5 calm minutes to your sprint.";
+    }
+  } else {
+    state.sprint.secondsLeft += 300;
+    state.sprint.totalSeconds += 300;
+  }
   updateTimerUI();
 }
 
