@@ -31,8 +31,8 @@
       </div>
 
       <div class="nav-center">
-        <!-- Date Badge -->
-        <div class="nav-date-badge" id="navDateBadge">
+        <!-- Interactive Date & Live Time Button -->
+        <button class="nav-date-btn" id="navDateBadge" title="Open Calendar & Day History">
           <svg class="nav-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
             <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -40,7 +40,9 @@
             <line x1="3" y1="10" x2="21" y2="10"></line>
           </svg>
           <span id="currentDateText">Today</span>
-        </div>
+          <span class="nav-time-sep">•</span>
+          <span id="currentTimeText" class="nav-live-time">--:--</span>
+        </button>
       </div>
 
       <div class="nav-right">
@@ -342,6 +344,51 @@
         </div>
 
         <button class="link-btn close-sprint-link" id="exitSprintBtn">Exit sprint</button>
+      </div>
+    </div>
+
+    <!-- Calendar & Day History Popover Modal -->
+    <div class="modal-backdrop" id="calendarModal" style="display: none;">
+      <div class="modal-card calendar-modal-card">
+        <div class="calendar-top-bar">
+          <div class="calendar-clock-block">
+            <span class="clock-label">CURRENT TIME</span>
+            <div class="live-clock-display" id="modalLiveClock">--:--:--</div>
+          </div>
+          <button class="btn-close" id="closeCalendarBtn" title="Close calendar">✕</button>
+        </div>
+
+        <div class="calendar-nav-bar">
+          <div class="calendar-month-year" id="calendarMonthYear">September 2026</div>
+          <div class="calendar-nav-actions">
+            <button class="btn-cal-nav" id="calPrevMonthBtn" title="Previous Month">‹</button>
+            <button class="btn-cal-today" id="calTodayBtn">Today</button>
+            <button class="btn-cal-nav" id="calNextMonthBtn" title="Next Month">›</button>
+          </div>
+        </div>
+
+        <!-- 7-Day Day Names Header -->
+        <div class="calendar-weekdays-grid">
+          <span>Mo</span>
+          <span>Tu</span>
+          <span>We</span>
+          <span>Th</span>
+          <span>Fr</span>
+          <span>Sa</span>
+          <span>Su</span>
+        </div>
+
+        <!-- Dynamic Days Matrix -->
+        <div class="calendar-days-grid" id="calendarDaysGrid"></div>
+
+        <!-- Day History & Wins Section -->
+        <div class="calendar-day-detail">
+          <div class="day-detail-header">
+            <div class="day-detail-title" id="selectedDateTitle">Today's Activity</div>
+            <span class="day-detail-badge" id="selectedDateWinCount">0 wins</span>
+          </div>
+          <div class="day-detail-tasks" id="selectedDateTasksList"></div>
+        </div>
       </div>
     </div>
 

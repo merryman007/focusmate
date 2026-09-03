@@ -160,13 +160,150 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-// Date Display
-function renderHeaderDate() {
-  const dateEl = $('currentDateText');
-  if (dateEl) {
-    const now = new Date();
-    const options = { weekday: 'short', month: 'short', day: 'numeric' };
-    dateEl.textContent = now.toLocaleDateString(undefined, options);
+// --- Live Clock & Calendar System ---
+let calendarState = {
+  viewDate: new Date(),
+  selectedDate: new Date()
+};
+
+function updateLiveClock() {
+  const now = new Date();
+
+  // Header clock: 11:45 AM
+  const headerTime = $('currentTimeText');
+  if (headerTime) {
+    headerTime.textContent = now.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  }
+
+  // Header date: Thu, Sep 3
+  const headerDate = $('currentDateText');
+  if (headerDate) {
+    headerDate.textContent = now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+
+  // Modal live clock with seconds: 11:45:22 AM
+  const modalClock = $('modalLiveClock');
+  if (modalClock) {
+    modalClock.textContent = now.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+  }
+}
+
+// Start live clock ticking every second
+setInterval(updateLiveClock, 1000);
+
+function renderCalendar() {
+  const grid = $('calendarDaysGrid');
+  const monthYearLabel = $('calendarMonthYear');
+  if (!grid || !monthYearLabel) return;
+
+  const year = calendarState.viewDate.getFullYear();
+  const month = calendarState.viewDate.getMonth();
+
+  monthYearLabel.textContent = calendarState.viewDate.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+
+  // Map of date strings (YYYY-MM-DD) to completed tasks count
+  const completedDateMap = {};
+  state.completedTasks.forEach(t => {
+    if (t.completed_at) {
+      const dStr = t.completed_at.slice(0, 10);
+      completedDateMap[dStr] = (completedDateMap[dStr] || 0) + 1;
+    }
+  });
+
+  const firstDayOfMonth = new Date(year, month, 1);
+  const lastDayOfMonth = new Date(year, month + 1, 0);
+
+  // Monday as first day of week: 0 = Mon, 6 = Sun
+  const firstDayWeekday = (firstDayOfMonth.getDay() + 6) % 7;
+  const daysInMonth = lastDayOfMonth.getDate();
+
+  // Days from previous month to pad first row
+  const prevMonthLastDay = new Date(year, month, 0).getDate();
+
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const sel = calendarState.selectedDate;
+  const selectedStr = `${sel.getFullYear()}-${String(sel.getMonth() + 1).padStart(2, '0')}-${String(sel.getDate()).padStart(2, '0')}`;
+
+  let html = '';
+
+  // Previous month trailing days
+  for (let i = firstDayWeekday - 1; i >= 0; i--) {
+    const dayNum = prevMonthLastDay - i;
+    html += `<div class="cal-day-cell outside">${dayNum}</div>`;
+  }
+
+  // Current month days
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const isToday = dateKey === todayStr;
+    const isSelected = dateKey === selectedStr;
+    const winCount = completedDateMap[dateKey] || 0;
+
+    html += `
+      <div class="cal-day-cell ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}" 
+           data-date="${dateKey}" 
+           onclick="handleDateClick('${dateKey}')">
+        <span>${d}</span>
+        ${winCount > 0 ? `<div class="cal-win-dot" title="${winCount} task${winCount > 1 ? 's' : ''} completed"></div>` : ''}
+      </div>
+    `;
+  }
+
+  // Next month leading days to complete grid row
+  const totalRendered = firstDayWeekday + daysInMonth;
+  const remainingCells = (7 - (totalRendered % 7)) % 7;
+  for (let n = 1; n <= remainingCells; n++) {
+    html += `<div class="cal-day-cell outside">${n}</div>`;
+  }
+
+  grid.innerHTML = html;
+  renderDayDetail(selectedStr);
+}
+
+window.handleDateClick = function(dateKey) {
+  const parts = dateKey.split('-').map(Number);
+  calendarState.selectedDate = new Date(parts[0], parts[1] - 1, parts[2]);
+  renderCalendar();
+};
+
+function renderDayDetail(dateKey) {
+  const titleEl = $('selectedDateTitle');
+  const countBadge = $('selectedDateWinCount');
+  const listEl = $('selectedDateTasksList');
+  if (!titleEl || !countBadge || !listEl) return;
+
+  const sel = calendarState.selectedDate;
+  const today = new Date();
+  const isToday = sel.toDateString() === today.toDateString();
+
+  titleEl.textContent = isToday 
+    ? "Today's Activity" 
+    : sel.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+
+  const matchingTasks = state.completedTasks.filter(t => t.completed_at && t.completed_at.startsWith(dateKey));
+  const count = matchingTasks.length;
+
+  countBadge.textContent = `${count} win${count === 1 ? '' : 's'}`;
+
+  if (count === 0) {
+    listEl.innerHTML = `<p style="color: var(--text-muted); font-size: 0.8rem; padding: 4px 0;">No completed tasks recorded for this date.</p>`;
+  } else {
+    listEl.innerHTML = matchingTasks.map(t => {
+      let timeFormatted = '';
+      if (t.completed_at) {
+        try {
+          const compDate = new Date(t.completed_at);
+          timeFormatted = compDate.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+        } catch (e) {}
+      }
+      return `
+        <div class="day-task-row">
+          <span class="day-task-title">${escapeHtml(t.title)}</span>
+          <span class="day-task-time">${timeFormatted || 'Completed'}</span>
+        </div>
+      `;
+    }).join('');
   }
 }
 
@@ -211,6 +348,7 @@ async function loadTasks() {
     state.currentTask = data.current || null;
 
     updateUI();
+    renderCalendar();
   } catch (e) {
     console.error('Failed to load tasks', e);
   }
@@ -225,7 +363,7 @@ function updateUI() {
   if ($('pendingTabCount')) $('pendingTabCount').textContent = pending;
   if ($('completedTabCount')) $('completedTabCount').textContent = completed;
 
-  renderHeaderDate();
+  updateLiveClock();
 
   const arena = $('focusArena');
   const empty = $('emptyState');
@@ -782,6 +920,43 @@ function setupListeners() {
   const themeBtn = $('themeToggleBtn');
   if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
 
+  // Live Date & Calendar Trigger
+  const calBadge = $('navDateBadge');
+  if (calBadge) {
+    calBadge.addEventListener('click', () => {
+      renderCalendar();
+      showModal('calendarModal');
+    });
+  }
+
+  const closeCal = $('closeCalendarBtn');
+  if (closeCal) closeCal.addEventListener('click', () => hideModal('calendarModal'));
+
+  const prevMonth = $('calPrevMonthBtn');
+  if (prevMonth) {
+    prevMonth.addEventListener('click', () => {
+      calendarState.viewDate.setMonth(calendarState.viewDate.getMonth() - 1);
+      renderCalendar();
+    });
+  }
+
+  const nextMonth = $('calNextMonthBtn');
+  if (nextMonth) {
+    nextMonth.addEventListener('click', () => {
+      calendarState.viewDate.setMonth(calendarState.viewDate.getMonth() + 1);
+      renderCalendar();
+    });
+  }
+
+  const calToday = $('calTodayBtn');
+  if (calToday) {
+    calToday.addEventListener('click', () => {
+      calendarState.viewDate = new Date();
+      calendarState.selectedDate = new Date();
+      renderCalendar();
+    });
+  }
+
   // Main Arena Buttons
   const doneBtn = $('markDoneBtn');
   if (doneBtn) doneBtn.addEventListener('click', handleCompleteCurrentTask);
@@ -868,6 +1043,7 @@ function setupListeners() {
       hideModal('reviewModal');
       hideModal('settingsModal');
       hideModal('sprintModal');
+      hideModal('calendarModal');
       if (drawer) drawer.classList.remove('open');
     }
   });
@@ -1033,6 +1209,7 @@ function setupListeners() {
 // Initial Boot
 window.addEventListener('DOMContentLoaded', async () => {
   setupListeners();
+  updateLiveClock();
   await fetchSettings();
   await loadTasks();
 });
