@@ -354,14 +354,35 @@ async function loadTasks() {
   }
 }
 
+function isDateToday(dateString) {
+  if (!dateString) return false;
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const todayDateStr = `${year}-${month}-${day}`;
+
+  if (dateString.startsWith(todayDateStr)) return true;
+
+  try {
+    const d = new Date(dateString);
+    return d.toDateString() === today.toDateString();
+  } catch (e) {
+    return false;
+  }
+}
+
 function updateUI() {
-  const completed = state.completedTasks.length;
+  const todayWins = state.completedTasks.filter(t => isDateToday(t.completed_at));
+  const todayWinsCount = todayWins.length;
+  const totalCompleted = state.completedTasks.length;
   const pending = state.pendingTasks.length;
 
-  if ($('winsCount')) $('winsCount').textContent = completed;
+  if ($('winsCount')) $('winsCount').textContent = todayWinsCount;
+  if ($('winsPill')) $('winsPill').title = `${todayWinsCount} conquered today (${totalCompleted} total all-time)`;
   if ($('peekCount')) $('peekCount').textContent = pending;
   if ($('pendingTabCount')) $('pendingTabCount').textContent = pending;
-  if ($('completedTabCount')) $('completedTabCount').textContent = completed;
+  if ($('completedTabCount')) $('completedTabCount').textContent = totalCompleted;
 
   updateLiveClock();
 
